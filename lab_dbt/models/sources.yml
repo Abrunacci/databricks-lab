@@ -1,0 +1,8 @@
+version: 2
+
+sources:
+  - name: silver
+    database: databricks_lab
+    schema: silver
+    tables:
+      - name: transactions

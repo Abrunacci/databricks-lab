@@ -1,0 +1,8 @@
+.databricks/
+.databrickscfg/
+profiles.yml
+.env
+__pycache__/
+logs/
+target/
+dbt_packages/

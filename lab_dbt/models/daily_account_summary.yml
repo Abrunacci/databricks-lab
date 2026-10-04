@@ -1,0 +1,23 @@
+version: 2
+models:
+  - name: daily_account_summary
+    description: "Daily net movement per account, built from silver.transactions"
+    columns:
+      - name: account_day_key
+        description: "One row per account and day (grain key)"
+        data_tests: [unique, not_null]     # si se duplica el grain, falla
+      - name: account_id
+        description: "Customer account identifier"
+        data_tests: [not_null]
+      - name: txn_date
+        description: "Calendar day of the transactions"
+        data_tests: [not_null]
+      - name: total_in
+        description: "Sum of deposits (positive amounts)"
+      - name: total_out
+        description: "Sum of withdrawals (negative amounts, as positive number)"
+      - name: net_amount
+        description: "Deposits minus withdrawals"
+      - name: txn_count
+        description: "Number of valid transactions"
+        data_tests: [not_null]
