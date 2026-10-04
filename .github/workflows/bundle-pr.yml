@@ -1,0 +1,38 @@
+name: Bundle - PR (dev)
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "databricks_lab/**"
+      - ".github/workflows/bundle-pr.yml"
+
+defaults:
+  run:
+    working-directory: databricks_lab
+
+env:
+  DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+  DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+
+jobs:
+  dev:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: bundle-dev
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: databricks/setup-cli@main
+
+      - name: Validate (dev and prod)
+        run: |
+          databricks bundle validate -t dev
+          databricks bundle validate -t prod
+
+      - name: Deploy to dev
+        run: databricks bundle deploy -t dev
+
+      - name: Run job in dev
+        run: databricks bundle run medallion_refresh -t dev
