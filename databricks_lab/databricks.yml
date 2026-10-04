@@ -3,25 +3,44 @@ bundle:
   name: databricks_lab
 
 
-# Targets = environments. Just Dev for now.
+# Variables: values that change between environments.
+# No default on purpose: each target has to say which catalog it uses,
+# so a deploy can never land in the wrong one by accident.
+variables:
+  catalog:
+    description: Unity Catalog catalog where the medallion tables live
 
+
+# Targets = environments.
 targets:
   dev:
     mode: development
     default: true
+    variables:
+      catalog: databricks_lab_dev
+
+  prod:
+    mode: production
+    variables:
+      catalog: databricks_lab
+    workspace:
+      root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}
 
 
 resources:
   jobs:
     medallion_refresh:
       name: medallion-refresh
+      parameters:
+        - name: catalog
+          default: ${var.catalog}
       tasks:
         - task_key: create_catalog
           notebook_task:
             notebook_path: ./src/create_catalog.sql
-        
+
         - task_key: bronze_seed
-          depends_on: 
+          depends_on:
             - task_key: create_catalog
           notebook_task:
             notebook_path: ./src/bronze_seed.sql
@@ -31,9 +50,9 @@ resources:
             - task_key: bronze_seed
           notebook_task:
             notebook_path: ./src/create_silver_view.sql
-        
+
         - task_key: silver
-          depends_on: 
+          depends_on:
             - task_key: create_silver_view
           notebook_task:
             notebook_path: ./src/silver.sql

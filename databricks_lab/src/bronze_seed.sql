@@ -2,13 +2,15 @@
 -- Datos inventados para bronze: 58 transacciones (sept-oct 2026)
 -- Incluye 2 cuentas que operan un solo día (A-900, A-901) para la prueba de la metric view
 -- y 4 filas malas (monto no numérico, fecha inválida, monto vacío, coma decimal) que silver tiene que rechazar.
-CREATE TABLE IF NOT EXISTS databricks_lab.bronze.transactions_raw (
+USE CATALOG IDENTIFIER(:catalog);
+
+CREATE TABLE IF NOT EXISTS bronze.transactions_raw (
   raw_payload STRING,
   _source_file STRING,
   _ingested_at TIMESTAMP
 );
 
-INSERT OVERWRITE databricks_lab.bronze.transactions_raw (raw_payload, _source_file, _ingested_at) VALUES
+INSERT OVERWRITE bronze.transactions_raw (raw_payload, _source_file, _ingested_at) VALUES
   ('{"txn_id":"T101","account":"A-105","amount":"117.93","currency":"USD","ts":"2026-09-21T10:30:00"}', 'batch_2026_09.json', current_timestamp()),
   ('{"txn_id":"T102","account":"A-104","amount":"65.87","currency":"usd","ts":"2026-09-24T17:00:00"}', 'batch_2026_09.json', current_timestamp()),
   ('{"txn_id":"T103","account":"A-100","amount":"-642.53","currency":"USD","ts":"2026-09-27T09:05:00"}', 'batch_2026_09.json', current_timestamp()),
