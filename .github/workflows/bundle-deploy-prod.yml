@@ -1,0 +1,37 @@
+name: Bundle - Deploy (prod)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "databricks_lab/**"
+      - ".github/workflows/bundle-deploy-prod.yml"
+  workflow_dispatch:
+
+defaults:
+  run:
+    working-directory: databricks_lab
+
+env:
+  DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+  DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+
+jobs:
+  prod:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: bundle-prod
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: databricks/setup-cli@main
+
+      - name: Validate (prod)
+        run: databricks bundle validate -t prod
+
+      - name: Deploy to prod
+        run: databricks bundle deploy -t prod
+
+      - name: Run job in prod
+        run: databricks bundle run medallion_refresh -t prod
